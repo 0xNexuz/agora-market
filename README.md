@@ -167,3 +167,7 @@ URL to see each flow.
 ## Stack
 
 Vite, React and TypeScript, the `@flagsmith/flagsmith` JavaScript SDK (12.6), deployed on Vercel.
+
+## Licence
+
+MIT. See [LICENSE](LICENSE).
