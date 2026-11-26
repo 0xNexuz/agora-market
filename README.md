@@ -72,33 +72,49 @@ Two experiments run on the same flag, one per Flagsmith environment, so simulate
 ### Development: simulated shoppers (the main result)
 
 The hackathon allows simulated traffic for Track 01, so this is the result the entry is judged on. The traffic lab
-sent 600 simulated shoppers through the experiment with these assumptions, set on the lab page:
+sent 3,077 simulated shoppers through the experiment with these assumptions, set on the lab page:
 
 - Bag flow: 35% add to bag, and 50% of those go on to checkout, so about 17.5% start an order
 - WhatsApp flow: 20% tap Order on WhatsApp
 
 | Flagsmith reported (26 Nov 2026) | |
 |---|---|
-| Users enrolled | 600 |
+| Users enrolled | 3,077 |
+| Control (bag flow) | 1,530 exposures, 17.5% started an order |
 | Leading variation | `Variant_1` (Order on WhatsApp) |
-| Lift vs control | +4.4% |
-| Chance to be best | 60% |
+| Lift vs control | +12.2% |
+| Chance to be best | 92% (control: 8%) |
 
 ![Flagsmith results, Development](docs/flagsmith-development-results.png)
 
-**How to read it.** The WhatsApp button is ahead, but a 60% chance to be best is only a little better than a coin
-flip, and the interval in the chart runs from roughly -30% to +39%. The lab was set so that WhatsApp really is about
-14% better in relative terms, and 600 shoppers was not enough for Flagsmith to see that clearly. A gap of 17.5% vs
-20% needs roughly 3,800 shoppers per variation to detect reliably (80% power, 5% significance).
+**How to read it.** The WhatsApp button is ahead by 12.2%, with a 92% chance of being the better version. That is a
+strong lead, not a certainty: the 95% credible interval in the chart still starts a little below zero. The lab was
+set so that WhatsApp really is about 14% better in relative terms, and Flagsmith's estimate landed close to that.
+A gap of 17.5% vs 20% needs roughly 3,800 shoppers per variation to detect reliably (80% power, 5% significance);
+this run stopped at about 1,540 per variation.
 
-**Decision.** Do not roll out yet. Keep the 50 / 50 split and keep collecting. The simulation measures the
-assumptions typed into the lab, so it shows the experiment working end to end and how much traffic a real answer
-needs. It does not show what real shoppers prefer.
+The simulation measures the assumptions typed into the lab. It shows the experiment working end to end. It does not
+show what real shoppers prefer.
+
+### Decision: ship the winner with the same flag
+
+The experiment was ended in Development at 92%, and `Variant_1` was rolled out to everyone in that environment
+from the Flagsmith dashboard. No code change and no redeploy: the shop reads the same flag, so every shopper in that
+environment now gets the WhatsApp flow. Ending at 92% instead of waiting for 95% is a judgement call that a feature
+flag makes cheap, because the same flag switches it back.
+
+![Experiment completed and Variant_1 rolled out, Development](docs/flagsmith-development-rollout.png)
+
+**Checked on the live site.** The traffic lab has a rollout check that asks Flagsmith what 20 brand-new shoppers
+would get, without sending events. After the rollout it reported: "20 of 20 got whatsapp, 0 got control. 0 of 20
+are in a running experiment." You can run it yourself at the bottom of the
+[traffic lab](https://agora-market-sage.vercel.app/lab).
 
 ### Production: real shoppers (small test)
 
 The live shop was opened in a few browsers to check the real path. Flagsmith enrolled 3 shoppers and both order
 flows were served. That is far too few for a result, and Flagsmith shows the experiment as still collecting data.
+Production keeps its 50 / 50 split: the rollout above was made in Development only.
 
 ![Flagsmith experiment running, Production](docs/flagsmith-production-running.png)
 
