@@ -25,11 +25,5 @@ export const ORDER_STARTED = 'order_started';
 /** Secondary event, control only: the shopper put the bag in the cart. */
 export const ADD_TO_CART = 'add_to_cart';
 
-export const PRODUCT = {
-  name: 'Ankara Tote Bag',
-  maker: 'Hand-sewn in Benin City',
-  price: 18500,
-  delivery: 2000,
-};
 
 export const naira = (n: number) => `₦${n.toLocaleString('en-NG')}`;

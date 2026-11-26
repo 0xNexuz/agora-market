@@ -52,8 +52,9 @@ Two sources, kept honest:
 1. **Real shoppers:** the store page is shared on WhatsApp and X. These visits are the ones that answer the question.
 2. **Traffic lab (`/lab`):** simulated shoppers, each a fresh Flagsmith identity, sent through the live experiment.
    The conversion rates are **assumptions set with sliders on the page**, so the lab proves the pipeline works end to
-   end. It does not prove which flow is better. Set `VITE_FLAGSMITH_SIM_ENV_KEY` to send lab traffic to a separate
-   environment, so it never mixes with real shoppers.
+   end. It does not prove which flow is better. Lab traffic goes to the **Development** environment
+   (`VITE_FLAGSMITH_SIM_ENV_KEY`), which runs the same flag, metric and experiment, so it never mixes with the real
+   shoppers in **Production**.
 
 ## Results
 

@@ -1,6 +1,11 @@
 import { createFlagsmithInstance } from '@flagsmith/flagsmith';
 import { useRef, useState } from 'react';
-import { ADD_TO_CART, FLAG, ORDER_STARTED, PRODUCT, SIM_ENV_KEY, VARIANTS } from './config';
+import { ADD_TO_CART, ENV_KEY, FLAG, ORDER_STARTED, SIM_ENV_KEY, VARIANTS } from './config';
+import { DELIVERY, PRODUCTS } from './data';
+
+/** A simulated order is one random piece from the catalogue plus delivery. */
+const orderValue = () => PRODUCTS[Math.floor(Math.random() * PRODUCTS.length)].price + DELIVERY;
+const separate = Boolean(SIM_ENV_KEY) && SIM_ENV_KEY !== ENV_KEY;
 
 type Tally = { shown: number; ordered: number };
 type Tallies = { cart: Tally; whatsapp: Tally; skipped: number; errors: number };
@@ -47,7 +52,7 @@ export function Lab() {
       if (flag.value === VARIANTS.whatsapp) {
         t.whatsapp.shown++;
         if (Math.random() < whatsappRate / 100) {
-          fs.trackEvent(ORDER_STARTED, { value: PRODUCT.price + PRODUCT.delivery });
+          fs.trackEvent(ORDER_STARTED, { value: orderValue() });
           t.whatsapp.ordered++;
         }
       } else {
@@ -55,7 +60,7 @@ export function Lab() {
         if (Math.random() < addRate / 100) {
           fs.trackEvent(ADD_TO_CART);
           if (Math.random() < checkoutRate / 100) {
-            fs.trackEvent(ORDER_STARTED, { value: PRODUCT.price + PRODUCT.delivery });
+            fs.trackEvent(ORDER_STARTED, { value: orderValue() });
             t.cart.ordered++;
           }
         }
@@ -115,6 +120,13 @@ export function Lab() {
         </p>
 
         {!SIM_ENV_KEY && <p className="dev-note">Set VITE_FLAGSMITH_ENV_KEY first: the lab has nowhere to send traffic.</p>}
+        {SIM_ENV_KEY && (
+          <p className="dev-note">
+            {separate
+              ? 'Lab traffic goes to the Development environment in Flagsmith. Real shoppers on the store page go to Production, so the two never mix.'
+              : 'Warning: the lab is sending to the same Flagsmith environment as real shoppers, so simulated and real data will mix.'}
+          </p>
+        )}
 
         <div className="lab-grid">
           <label>
