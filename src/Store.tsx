@@ -212,7 +212,7 @@ export function Store() {
                 onClick={() => onHangerClick(id)}
                 onKeyDown={(e) => onHangerKey(e, id)}
               >
-                <Garment product={product} className="hanger-art" />
+                <Garment product={product} className="hanger-art" rich={false} />
                 <span className="hanger-tag">{naira(product.price)}</span>
               </button>
             );
@@ -365,7 +365,7 @@ export function Store() {
                   <ul className="lines">
                     {lines.map((l) => (
                       <li key={l.id + l.size}>
-                        <Garment product={l.product} className="line-art" />
+                        <Garment product={l.product} className="line-art" rich={false} />
                         <div className="line-info">
                           <strong>{l.product.name}</strong>
                           <span>{l.size}</span>
