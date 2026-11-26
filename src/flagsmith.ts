@@ -78,10 +78,10 @@ async function assign(): Promise<Assignment> {
 /** Track an event and push it out now, before the shopper leaves the page. */
 export async function track(event: string, value?: number): Promise<void> {
   if (!ENV_KEY) return;
-  flagsmith.trackEvent(event, value === undefined ? undefined : { value });
   try {
+    flagsmith.trackEvent(event, value === undefined ? undefined : { value });
     await flagsmith.flushEvents();
   } catch (err) {
-    console.error('[agora] flush failed', err);
+    console.error('[agora] event not sent', err);
   }
 }

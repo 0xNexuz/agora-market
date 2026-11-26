@@ -8,12 +8,15 @@ Entry for **Toggle Wars: The Flagsmith Experimentation Hackathon** (WeMakeDevs),
 
 ## The question
 
-Many small Nigerian online shops sell through WhatsApp chats, not checkout carts. Shop owners keep asking whether a
-"proper" website checkout is worth it. This project tests that one question on a real product page:
+A small Nigerian online shop can take orders two ways: through a checkout cart on its website, or through a WhatsApp
+chat with the seller. This project tests which one gets more shoppers to start an order, on one product page:
 
 > **Hypothesis:** On a Nigerian product page, a single **Order on WhatsApp** button gets more shoppers to start an
 > order than the usual **Add to bag → Checkout with Paystack** flow, because it takes fewer taps and lets
 > shoppers talk to a person before paying.
+>
+> **Target set before the test:** at least 15% more shoppers starting an order, as written in the experiment in
+> Flagsmith.
 
 | | Control (`control`) | Variation (`whatsapp`) |
 |---|---|---|
@@ -27,6 +30,15 @@ Many small Nigerian online shops sell through WhatsApp chats, not checkout carts
 Everything else is identical for both groups: the same 24-piece catalogue, the rail, the product views, prices and
 delivery fee.
 
+## The experiment setup
+
+- **Flag:** `agora_order_flow`, multivariate. Flag value `control` = bag flow. The variation has the value `whatsapp`
+  and shows in Flagsmith under its key, `Variant_1`
+- **Metric:** `order_started`, occurrence, higher is better. It fires early in a visit, so it can be measured in a short test
+- **Split:** 100% of shoppers enrolled, 50 / 50
+- **Also tracked:** `add_to_cart` (control only). It is sent as an event but has no metric in Flagsmith yet, so it
+  is not part of the results
+
 ## The shop
 
 - **The rail:** all 24 pieces hang on a clothing rail. Hover to turn a piece to face you, drag a hanger sideways to
@@ -37,12 +49,9 @@ delivery fee.
   delivery form stays in the browser and is not sent anywhere.
 - The garments and the hero artwork are drawn in SVG for this project. The catalogue is a demo: no payments are
   taken and nothing is delivered, and the page says so.
-
-- **Flag:** `agora_order_flow`, multivariate. Flag value `control` = bag flow. The variation has the value `whatsapp`
-  and shows in Flagsmith under its key, `Variant_1`
-- **Metric:** `order_started`, occurrence, higher is better. It fires early in a visit, so four days of data is enough
-- **Split:** 100% of shoppers enrolled, 50 / 50
-- **Secondary event:** `add_to_cart` (control only), to see where the bag flow loses people
+- **Paystack is not integrated.** The "Checkout with Paystack" button stands in for a real checkout, so the control
+  flow looks like a normal Nigerian store. Tapping it records the event and shows a demo confirmation.
+- Dragging a hanger works with a mouse or the keyboard. On a touch screen you can scroll the rail and tap a piece.
 
 ## How Flagsmith is used
 
@@ -58,7 +67,8 @@ delivery fee.
 
 Two sources, kept honest:
 
-1. **Real shoppers:** the store page is shared on WhatsApp and X. These visits are the ones that answer the question.
+1. **Real shoppers:** anyone who opens the live shop joins the Production experiment. Only these visits can answer
+   the question for real.
 2. **Traffic lab (`/lab`):** simulated shoppers, each a fresh Flagsmith identity, sent through the live experiment.
    The conversion rates are **assumptions set with sliders on the page**, so the lab proves the pipeline works end to
    end. It does not prove which flow is better. Lab traffic goes to the **Development** environment
@@ -87,8 +97,9 @@ sent 3,077 simulated shoppers through the experiment with these assumptions, set
 
 ![Flagsmith results, Development](docs/flagsmith-development-results.png)
 
-**How to read it.** The WhatsApp button is ahead by 12.2%, with a 92% chance of being the better version. That is a
-strong lead, not a certainty: the 95% credible interval in the chart still starts a little below zero. The lab was
+**How to read it.** The WhatsApp button is ahead by 12.2%, with a 92% chance of being the better version. The
+direction of the hypothesis held, but the lift is below the 15% target set before the test, so the hypothesis as
+written was not met. The lead is strong, not certain: the 95% credible interval in the chart still starts a little below zero. The lab was
 set so that WhatsApp really is about 14% better in relative terms, and Flagsmith's estimate landed close to that.
 A gap of 17.5% vs 20% needs roughly 3,800 shoppers per variation to detect reliably (80% power, 5% significance);
 this run stopped at about 1,540 per variation.
@@ -123,6 +134,8 @@ Production keeps its 50 / 50 split: the rollout above was made in Development on
 - Agora Market is a demo shop: no payment is taken, and a tap on an order button is not a purchase.
 - Each browser counts as one shopper, so the same person on two devices is counted twice.
 - The catalogue and prices are written for the demo.
+- Events are sent from the browser with a public client-side key, as Flagsmith intends. Anyone could send fake
+  events with it, so a real shop would also check orders on its server.
 - The "Order on WhatsApp" button opens WhatsApp with the message filled in, but there is no real seller number.
 
 ## Run it locally
