@@ -34,6 +34,34 @@ export function Lab() {
   const [done, setDone] = useState(0);
   const [tallies, setTallies] = useState<Tallies>(empty);
   const stop = useRef(false);
+  const [check, setCheck] = useState<null | { n: number; whatsapp: number; control: number; enrolled: number }>(null);
+  const [checking, setChecking] = useState(false);
+
+  /**
+   * Rollout check: ask Flagsmith what 20 brand-new shoppers would get. No events
+   * are sent. After a winner is rolled out, every one of them gets that value.
+   */
+  const checkRollout = async () => {
+    setChecking(true);
+    const r = { n: 20, whatsapp: 0, control: 0, enrolled: 0 };
+    const runId = Date.now().toString(36);
+    await Promise.all(
+      Array.from({ length: r.n }, async (_, i) => {
+        const fs = createFlagsmithInstance();
+        try {
+          await fs.init({ environmentID: SIM_ENV_KEY, identity: `check_${runId}_${i}`, cacheFlags: false });
+          const flag = fs.getAllFlags()[FLAG];
+          if (flag?.experiment?.inExperiment) r.enrolled++;
+          if (flag?.value === VARIANTS.whatsapp) r.whatsapp++;
+          else r.control++;
+        } catch (err) {
+          console.error('[agora lab]', err);
+        }
+      }),
+    );
+    setCheck(r);
+    setChecking(false);
+  };
 
   const runOne = async (runId: string, i: number, t: Tallies) => {
     const fs = createFlagsmithInstance();
@@ -201,6 +229,23 @@ export function Lab() {
           Not enrolled: {tallies.skipped} · errors: {tallies.errors}. These counts are this browser's tally; the
           Flagsmith experiment page is the source of truth and shows the win probability a minute or so later.
         </p>
+
+        <h2 className="lab-h2">Rollout check</h2>
+        <p className="lab-lead">
+          Asks Flagsmith what 20 brand-new shoppers would get from <code>{FLAG}</code> right now, without sending any
+          events. While the experiment runs the answer is a mix. After a winner is rolled out, all 20 get it.
+        </p>
+        <div className="lab-actions">
+          <button className="btn btn-quiet" disabled={checking || !SIM_ENV_KEY} onClick={checkRollout}>
+            {checking ? 'Checking…' : 'Check 20 new shoppers'}
+          </button>
+        </div>
+        {check && (
+          <p className="lab-result" role="status">
+            {check.whatsapp} of {check.n} got <code>whatsapp</code>, {check.control} got <code>control</code>.{' '}
+            {check.enrolled} of {check.n} are in a running experiment.
+          </p>
+        )}
       </main>
     </div>
   );

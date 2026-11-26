@@ -804,6 +804,19 @@ h3 {
   accent-color: var(--sun);
 }
 
+.lab-h2 {
+  margin: 40px 0 8px;
+  font-size: 1.3rem;
+}
+
+.lab-result {
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: var(--white);
+  border: 1px solid var(--line);
+  font-weight: 600;
+}
+
 .lab-hint {
   font-size: 0.85rem;
   color: var(--ink-soft);
