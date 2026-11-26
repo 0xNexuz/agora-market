@@ -13,15 +13,27 @@ Many small Nigerian online shops sell through WhatsApp chats, not checkout carts
 
 | | Control (`control`) | Variation (`whatsapp`) |
 |---|---|---|
-| Order flow | Add to cart → cart sheet → Pay with Paystack | Order on WhatsApp (opens a pre-filled chat) |
-| Counts as an order started | Tap **Pay with Paystack** | Tap **Order on WhatsApp** |
+| Order flow | Add to bag → bag drawer → Checkout with Paystack → delivery details | Order on WhatsApp (opens a pre-filled chat for that piece and size) |
+| Counts as an order started | Tap **Checkout with Paystack** in the bag | Tap **Order on WhatsApp** |
 
-Everything else on the page (product, price, photo, delivery info) is identical.
+Everything else is identical for both groups: the same 24-piece catalogue, the rail, the product views, prices and
+delivery fee.
+
+## The shop
+
+- **The rail:** all 24 pieces hang on a clothing rail. Hover to turn a piece to face you, drag a hanger sideways to
+  move it along the rail (Shift + arrow keys on a keyboard), click to inspect it.
+- **Inspect:** front and back views, size picker, and the order button for the shopper's variation.
+- **Collection:** grid of every piece with category filters.
+- **Bag and checkout (control only):** quantities, subtotal, delivery and total are computed from the bag. The
+  delivery form stays in the browser and is not sent anywhere.
+- The garments and the hero artwork are drawn in SVG for this project. The catalogue is a demo: no payments are
+  taken and nothing is delivered, and the page says so.
 
 - **Flag:** `agora_order_flow`, multivariate. Flag value `control` = cart flow, keyed variation `whatsapp` = WhatsApp flow
 - **Metric:** `order_started`, occurrence, higher is better. It fires early in a visit, so four days of data is enough
 - **Split:** 100% of shoppers enrolled, 50 / 50
-- **Secondary event:** `add_to_cart` (control only), to see where the cart flow loses people
+- **Secondary event:** `add_to_cart` (control only), to see where the bag flow loses people
 
 ## How Flagsmith is used
 
